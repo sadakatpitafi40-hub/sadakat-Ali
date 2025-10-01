@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Short Link with Image Gallery</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f4f4f4;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 400px;
+      text-align: center;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .gallery img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Create Short Link</h2>
+    <input type="text" id="title" placeholder="Enter Title">
+    <textarea id="description" placeholder="Enter Description"></textarea>
+    <input type="file" id="imageInput" multiple accept="image/*">
+    <div class="gallery" id="gallery"></div>
+    <button onclick="generateLink()">Generate Short Link</button>
+    <p id="shortLink"></p>
+  </div>
+
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    const gallery = document.getElementById('gallery');
+
+    imageInput.addEventListener('change', () => {
+      gallery.innerHTML = '';
+      Array.from(imageInput.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = document.createElement('img');
+          img.src = reader.result;
+          gallery.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    function generateLink() {
+      const title = document.getElementById('title').value;
+      const description = document.getElementById('description').value;
+      const shortURL = "https://short.ly/" + Math.random().toString(36).substring(2, 7);
+      document.getElementById('shortLink').innerHTML = `<strong>Short Link:</strong> <a href='${shortURL}' target='_blank'>${shortURL}</a><br><strong>Title:</strong> ${title}<br><strong>Description:</strong> ${description}`;
+    }
+  </script>
+</body>
+</html>
