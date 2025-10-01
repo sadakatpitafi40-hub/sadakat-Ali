@@ -1,0 +1,59 @@
+// Backend implementation using Node.js + Express + MongoDB for working short link service
+
+const express = require('express');
+const mongoose = require('mongoose');
+const shortid = require('shortid');
+const cors = require('cors');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// MongoDB Connection
+mongoose.connect('mongodb://localhost:27017/shortlinks', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+// Schema
+const linkSchema = new mongoose.Schema({
+  shortCode: { type: String, unique: true },
+  title: String,
+  description: String,
+  images: [String],
+  createdAt: { type: Date, default: Date.now },
+});
+
+const Link = mongoose.model('Link', linkSchema);
+
+// API to create short link
+app.post('/api/create', async (req, res) => {
+  try {
+    const { title, description, images } = req.body;
+    const shortCode = shortid.generate();
+
+    const newLink = new Link({ shortCode, title, description, images });
+    await newLink.save();
+
+    res.json({ success: true, shortUrl: `http://localhost:5000/${shortCode}` });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// API to get link details
+app.get('/:shortCode', async (req, res) => {
+  try {
+    const { shortCode } = req.params;
+    const linkData = await Link.findOne({ shortCode });
+
+    if (!linkData) return res.status(404).send('Link not found');
+
+    res.json(linkData);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+// Start Server
+app.listen(5000, () => console.log('Server running on http://localhost:5000'));
